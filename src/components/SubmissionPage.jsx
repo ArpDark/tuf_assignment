@@ -25,19 +25,20 @@ const SubmissionPage=()=>{
     return(
         <div className="flex flex-col w-full border border-black rounded-t-md">
             <div className="flex justify-around  font-semibold text-lg">
-                <p className="flex justify-center bg-purple-200 border border-black w-full">Username</p>
-                <p className="flex justify-center bg-purple-200 border border-black w-full">Code Language</p>
-                <p className="flex justify-center bg-purple-200 border border-black w-full">Stdin</p>
-                <p className="flex justify-center bg-purple-200 border border-black w-full">Time of Submission</p>
-                <p className="flex justify-center bg-purple-200 border border-black w-full">Stdout</p>
+                <p className="flex justify-center bg-purple-200 border border-black w-1/5">Username</p>
+                <p className="flex justify-center bg-purple-200 border border-black w-1/5">Code Language</p>
+                <p className="flex justify-center bg-purple-200 border border-black w-1/5">Stdin</p>
+                <p className="flex justify-center bg-purple-200 border border-black w-1/5">Time of Submission</p>
+                <p className="flex justify-center bg-purple-200 border border-black w-1/5">Stdout</p>
             </div>
             {submittedData.map((data)=>(
-                <div className="flex flex-col border-2 border-black">
+                <div className="flex flex-col border border-black w-full">
                     <div className="flex justify-around">
-                        <p>{data.username}</p>
-                        <p>{data.codelanguage}</p>
-                        <p dangerouslySetInnerHTML={{__html: replaceWithBr(data.stdin)}}/>
-                        <p>Time of Submission</p>
+                        <p className="flex w-1/5 justify-center border border-gray-600">{data.username}</p>
+                        <p className="flex w-1/5 justify-center border border-gray-600">{data.codelanguage}</p>
+                        <p className="flex w-1/5 justify-center border border-gray-600" dangerouslySetInnerHTML={{__html: replaceWithBr(data.stdin)}}/>
+                        <p className="flex w-1/5 justify-center border border-gray-600">{data.submissiondate}</p>
+                        <p className="flex w-1/5 justify-center border border-gray-600">{data.stdout}</p>
                     </div>
 
                     <p className="font-semibold text-lg">Code:</p> 

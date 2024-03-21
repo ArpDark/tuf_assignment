@@ -42,7 +42,7 @@ function App() {
     <div className='flex justify-center max-w-screen overflow-y-auto'>
       <form className='flex flex-col items-center border-2 border-emerald-400' onSubmit={handleSubmit}>
 
-        <div className=' flex justify-between'>
+        <div className=' flex w-full justify-around'>
           <div className='flex flex-col'>
             <label htmlFor='username'> Username:</label>
             <input type="text" name='username' className=' border-2 border-black' value={username} onChange={(e) => setUsername(e.target.value)} />
@@ -62,11 +62,11 @@ function App() {
           <textarea name='code' className='border-2 border-black' rows={15} cols={100} value={sourceCode} onChange={(e) => setSourceCode(e.target.value)} />
         </div>
 
-        <div>
+        <div className="flex flex-col">
           <label htmlFor='input'>Standard Input (stdin):</label>
           <textarea value={stdin} className='border-2 border-black' name='input' rows={4} cols={50} onChange={(e) => setStdin(e.target.value)} />
         </div>
-        <button className='border-2 border-black w-1/4' type="submit">Submit</button>
+        <button className=' my-4 border-2 border-black w-1/4' type="submit">Submit</button>
       </form>
     </div>
   );

@@ -4,6 +4,8 @@ import bodyParser from "body-parser";
 import cors from "cors";
 import axios from "axios";
 import mysql from "mysql";
+import moment from 'moment-timezone';
+
 dotenv.config();
 const port=process.env.PORT||8000;
 
@@ -25,16 +27,17 @@ const connection = mysql.createConnection({
     keepAlive: true
 })
 
+function connectDB(){
+    connection.connect((err)=>{
+        if (err) {
+            console.log('error connecting: ' + err);
+            return;
+        }
+        console.log('connected as id ' + connection.threadId);
+    });
+}
 
-// connection.connect((err)=>{
-//     if (err) {
-//       console.log('error connecting: ' + err);
-//       return;
-//     }
-//     console.log('connected as id ' + connection.threadId);
-// });
-
-var sql = "CREATE TABLE IF NOT EXISTS data ( username TEXT(100) , codelanguage TEXT(10), stdin TEXT(10000), code TEXT(50000), submissiondate DATETIME, stdout TEXT(10000) );";
+var sql = "CREATE TABLE IF NOT EXISTS data ( username TEXT(100) , codelanguage TEXT(10), stdin TEXT(10000), code TEXT(50000), submissiondate TEXT(100) , stdout TEXT(10000) );";
 connection.query(sql,(err,result)=>{
     if(err)
     {
@@ -46,7 +49,8 @@ connection.query(sql,(err,result)=>{
     }
 });
 
-app.get("/",(req,res)=>{
+app.get("/",async(req,res)=>{
+    
     res.send("Welcome to the backend");
 });
 
@@ -56,14 +60,30 @@ app.post("/submit",async(req,res)=>{
     console.log(req.body.lang);
     console.log(req.body.stdin);
     console.log(req.body.code);
+    console.log(req.body.date);
+    const buffer = Buffer.from(req.body.code);
+    const code = buffer.toString('base64');
 
+    const buffer2 = Buffer.from(req.body.stdin);
+    const stdin = buffer2.toString('base64');
+    let langId=54;
+    if(req.body.lang=="C++") langId=54;
+    if(req.body.lang=="Java") langId=62;
+    if(req.body.lang=="JavaScript") langId=63;
+    if(req.body.lang=="Python") langId=71;
 
+    let x="";
     const options = {
+        // c++ id:54
+        //  java id: 62
+        //  JS id: 63
+        //  py id: 71
         method: 'POST',
         url: 'https://judge0-ce.p.rapidapi.com/submissions',
         params: {
           base64_encoded: 'true',
-          fields: '*'
+          wait: 'true',
+          fields: '*',
         },
         headers: {
           'content-type': 'application/json',
@@ -72,25 +92,30 @@ app.post("/submit",async(req,res)=>{
           'X-RapidAPI-Host': process.env.X_RapidAPI_Host
         },
         data: {
-          language_id: 52,
-          source_code: req.body.code,
-          stdin: req.body.stdin
+          language_id: langId,
+          source_code: code,
+          stdin: stdin
         }
-      };
+    };
       
-      try {
-          const response = await axios.request(options);
-          console.log(response.data);
-      } catch (error) {
-          console.error(error);
-      }
+    try {
+        const response = await axios.request(options);
+        console.log(response.data);
+        const buffer= Buffer.from(response.data.stdout, 'base64');
+        console.log(buffer.toString());
+        x=buffer.toString();
+    } catch (error) {
+        console.error(error);
+    }
+    
+    function dateTime(){
+        // const utcDate = new Date(req.body.date);
+        const localDate=moment.tz(req.body.date).format('YYYY-MM-DD HH:mm:ss');
+        return(localDate);//.substring(0,10)+'T'+localTime.substring(11,19));
+    }
 
-
-
-
-    // const q="INSERT INTO data (username, codelanguage, stdin, code) VALUES ("+req.body.user+","+req.body.lang+","+req.body.stdin+","+req.body.code+")";
-    const q = "INSERT INTO data (username, codelanguage, stdin, code) VALUES (?, ?, ?, ?)";
-    const values = [req.body.user, req.body.lang, req.body.stdin, req.body.code];
+    const q = "INSERT INTO data (username, codelanguage, stdin, code, submissiondate, stdout) VALUES (?, ?, ?, ?, ?, ?)";
+    const values = [req.body.user, req.body.lang, req.body.stdin, req.body.code,dateTime(req.body.date),x];
     connection.query(q,values,(err,result)=>{
         if(err)
         {
@@ -107,6 +132,7 @@ app.post("/submit",async(req,res)=>{
 
 app.get("/allsubmissions",async(req,res)=>{
     const q = "SELECT * from data";
+
 
     connection.query(q,(err,result)=>{
         if(err)
