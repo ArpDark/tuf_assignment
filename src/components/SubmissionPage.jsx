@@ -1,6 +1,5 @@
 import { useState,useEffect } from "react";
 import axios from "axios";
-import qs from "qs";
 
 const SubmissionPage=()=>{
     const apiUrl=import.meta.env.VITE_BACKEND_URL;
