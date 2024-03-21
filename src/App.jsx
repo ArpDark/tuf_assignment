@@ -1,18 +1,46 @@
-import { useState } from 'react'
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import qs from "qs";
 
 function App() {
-  const [username, setUsername] = useState('');
-  const [codeLanguage, setCodeLanguage] = useState('');
-  const [stdin, setStdin] = useState('');
-  const [sourceCode, setSourceCode] = useState('');
+  const [username, setUsername] = useState("");
+  const [codeLanguage, setCodeLanguage] = useState("C++");
+  const [stdin, setStdin] = useState("");
+  const [sourceCode, setSourceCode] = useState("");
+  const navigate=useNavigate();
+  const apiUrl=import.meta.env.VITE_BACKEND_URL;
 
   const handleSubmit=(e)=>{
     e.preventDefault();
+    const data={
+      user:username,
+      lang:codeLanguage,
+      stdin:stdin,
+      code:sourceCode,
+      date:new Date()
+    }
+    console.log(data);
+    const config = {
+      method: 'POST',
+      headers: { 'content-type': 'application/x-www-form-urlencoded' },
+      data: qs.stringify(data),
+      url: apiUrl+"/submit"
+    };
+    axios(config)
+    .then((result)=>{
+      console.log(result);
+      navigate("/submission");
+    })
+    .catch((err)=>{
+      console.log(err);
+    });
+
   }
 
   return (
     <div className='flex justify-center max-w-screen overflow-y-auto'>
-      <form className='flex flex-col border-2 border-emerald-400' onSubmit={handleSubmit}>
+      <form className='flex flex-col items-center border-2 border-emerald-400' onSubmit={handleSubmit}>
 
         <div className=' flex justify-between'>
           <div className='flex flex-col'>
@@ -38,10 +66,10 @@ function App() {
           <label htmlFor='input'>Standard Input (stdin):</label>
           <textarea value={stdin} className='border-2 border-black' name='input' rows={4} cols={50} onChange={(e) => setStdin(e.target.value)} />
         </div>
-        <button className='border-2 border-black' type="submit">Submit</button>
+        <button className='border-2 border-black w-1/4' type="submit">Submit</button>
       </form>
     </div>
   );
 }
 
-export default App
+export default App;
